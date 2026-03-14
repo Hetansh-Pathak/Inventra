@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 
 interface PageWrapperProps {
   children: React.ReactNode;
+  title?: string;
 }
 
 export default function PageWrapper({ children }: PageWrapperProps) {

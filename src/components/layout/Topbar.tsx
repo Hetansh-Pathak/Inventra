@@ -1,8 +1,9 @@
-import { useLocation } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@/store/useAppStore';
-import { Search, Bell, ChevronRight } from 'lucide-react';
-import { notifications } from '@/mock/data';
-import { useState } from 'react';
+import { Search, Bell, ChevronRight, PackageOpen } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -14,16 +15,27 @@ const pageTitles: Record<string, string> = {
   '/move-history': 'Move History',
   '/reports': 'Reports',
   '/settings': 'Settings',
+  '/profile': 'Profile',
 };
 
 export default function Topbar() {
   const location = useLocation();
-  const { setGlobalSearchOpen, currentUser, sidebarCollapsed } = useAppStore();
+  const navigate = useNavigate();
+  const { setGlobalSearchOpen, currentUser, sidebarCollapsed,
+    notifications, markAllNotificationsRead,
+    markNotificationRead } = useAppStore();
   const [showNotifs, setShowNotifs] = useState(false);
+
+  const { data: alerts } = useQuery({
+    queryKey: ['dashboard-alerts'],
+    queryFn: () => apiFetch('/dashboard/alerts'),
+    refetchInterval: 60000, // Refresh every minute
+  });
 
   const pathParts = location.pathname.split('/').filter(Boolean);
   const pageTitle = pageTitles['/' + pathParts[0]] || 'Page';
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const unreadCount = notifications?.filter((n: any) => !n.isRead).length || 0;
 
   return (
     <header
@@ -38,11 +50,11 @@ export default function Topbar() {
       <div>
         <h1 className="text-lg font-bold text-foreground">{pageTitle}</h1>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <span>Dashboard</span>
-          {pathParts.length > 0 && pathParts[0] !== 'dashboard' && (
+          <span>CoreInventory</span>
+          {pathParts.length > 0 && (
             <>
               <ChevronRight className="w-3 h-3" />
-              <span className="text-primary capitalize">{pathParts[0]}</span>
+              <span className="text-primary capitalize">{pathParts[0].replace('-', ' ')}</span>
             </>
           )}
         </div>
@@ -69,38 +81,45 @@ export default function Topbar() {
             <Bell className="w-5 h-5 text-muted-foreground" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
-                style={{ background: '#00D4AA', color: '#0A0E1A' }}>
-                {unreadCount}
+                style={{ background: '#FFB020', color: '#0A0E1A' }}>
+                {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </button>
 
           {showNotifs && (
-            <div className="absolute right-0 top-12 w-80 glass-card p-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute right-0 top-12 w-80 glass-card p-0 overflow-hidden shadow-2xl z-40" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between p-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <span className="text-sm font-semibold text-foreground">Notifications</span>
-                <button className="text-xs text-primary">Mark all read</button>
+                <button className="text-xs text-primary" onClick={markAllNotificationsRead}>Mark all read</button>
               </div>
               <div className="max-h-80 overflow-y-auto">
-                {notifications.slice(0, 5).map(n => (
-                  <div key={n._id} className="px-4 py-3 flex items-start gap-3 transition-colors hover:bg-primary/5"
-                    style={{ borderLeft: n.isRead ? '3px solid transparent' : '3px solid #00D4AA' }}>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-foreground">{n.title}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{n.message}</div>
+                {notifications.length > 0 ? (
+                  notifications.map((n: any) => (
+                    <div key={n._id} onClick={() => { setShowNotifs(false); navigate('/products?filter=low_stock'); }} className="px-4 py-3 flex items-start gap-3 transition-colors hover:bg-primary/10 cursor-pointer"
+                      style={{ borderLeft: n.isRead ? '3px solid transparent' : '3px solid #FFB020' }}>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-foreground">{n.title}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{n.message}</div>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="p-8 flex flex-col items-center justify-center text-muted-foreground">
+                    <PackageOpen className="w-8 h-8 mb-2 opacity-50" />
+                    <p className="text-sm">You're all caught up!</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
         </div>
 
         {/* Avatar */}
-        <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
+        <button onClick={() => navigate('/profile')} className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-transform hover:scale-105"
           style={{ background: 'rgba(0,212,170,0.2)', color: '#00D4AA', border: '2px solid rgba(0,212,170,0.4)' }}>
-          {currentUser.initials}
-        </div>
+          {currentUser?.initials}
+        </button>
       </div>
     </header>
   );

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/store/useAppStore';
+import toast from 'react-hot-toast';
 import {
   LayoutDashboard, ArrowDownCircle, Truck, ArrowLeftRight,
   SlidersHorizontal, Package, History, BarChart2, Settings,
@@ -45,8 +46,9 @@ const navSections = [
 ];
 
 export default function Sidebar() {
-  const { sidebarCollapsed, toggleSidebar, currentUser } = useAppStore();
+  const { sidebarCollapsed, toggleSidebar, currentUser, logout } = useAppStore();
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <motion.aside
@@ -130,21 +132,34 @@ export default function Sidebar() {
 
       {/* User */}
       <div className="flex-shrink-0 px-3 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold"
-            style={{ background: 'rgba(0,212,170,0.2)', color: '#00D4AA', border: '2px solid rgba(0,212,170,0.4)' }}>
-            {currentUser.initials}
-          </div>
-          <AnimatePresence>
-            {!sidebarCollapsed && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 overflow-hidden">
-                <div className="text-sm font-semibold text-foreground truncate">{currentUser.name}</div>
-                <div className="text-xs text-muted-foreground truncate">{currentUser.role}</div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="w-full flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-white/5">
+          <button
+            onClick={() => navigate('/profile')}
+            className="flex flex-1 items-center gap-3 overflow-hidden text-left"
+          >
+            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold transition-transform hover:scale-105"
+              style={{ background: 'rgba(0,212,170,0.2)', color: '#00D4AA', border: '2px solid rgba(0,212,170,0.4)' }}>
+              {currentUser?.initials}
+            </div>
+            <AnimatePresence>
+              {!sidebarCollapsed && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 overflow-hidden">
+                  <div className="text-sm font-semibold text-foreground truncate">{currentUser?.name}</div>
+                  <div className="text-xs text-muted-foreground truncate">{currentUser?.role}</div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </button>
           {!sidebarCollapsed && (
-            <button className="p-1.5 rounded-lg transition-colors hover:bg-destructive/10">
+            <button
+              onClick={() => {
+                logout();
+                navigate('/login');
+                toast.success('Logged out successfully');
+              }}
+              className="p-1.5 rounded-lg transition-colors hover:bg-destructive/10 flex-shrink-0"
+              title="Logout"
+            >
               <LogOut className="w-4 h-4 text-muted-foreground hover:text-destructive" />
             </button>
           )}

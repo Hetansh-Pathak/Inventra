@@ -13,7 +13,11 @@ export function AdjustmentsListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
+<<<<<<< HEAD
   const adjustments = useAppStore(state => state.adjustments);
+=======
+  const { adjustments, validateAdjustment } = useAppStore();
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
   const isLoading = false;
   const filtered = adjustments.filter((a: any) => 
     a.adjustmentNo?.toLowerCase().includes(search.toLowerCase()) || 
@@ -79,7 +83,32 @@ export function AdjustmentsListPage() {
                       {a.difference > 0 ? '+' : ''}{a.difference}
                     </td>
                     <td className="p-4 text-muted-foreground">{a.reason}</td>
+<<<<<<< HEAD
                     <td className="p-4 text-center"><StatusBadge status={a.status} /></td>
+=======
+                    <td className="p-4 text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <StatusBadge status={a.status} />
+                        {a.status === 'draft' && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              validateAdjustment(a._id);
+                              toast.success('Adjustment validated! Stock updated ✅');
+                            }}
+                            className="text-xs px-2 py-1 rounded-lg transition-colors mt-1"
+                            style={{
+                              background: 'rgba(0,212,170,0.1)',
+                              border: '1px solid rgba(0,212,170,0.3)',
+                              color: '#00D4AA',
+                            }}
+                          >
+                            Validate
+                          </button>
+                        )}
+                      </div>
+                    </td>
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                   </motion.tr>
                 ))}
                 {filtered.length === 0 && (
@@ -102,9 +131,13 @@ export function AdjustmentFormPage() {
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
 
+<<<<<<< HEAD
   const products = useAppStore(state => state.products);
   const warehouses = useAppStore(state => state.warehouses);
   const addAdjustment = useAppStore(state => state.addAdjustment);
+=======
+  const { products, warehouses, addAdjustment } = useAppStore();
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
 
   const product = products.find((p: any) => p._id === productId);
   const systemQty = product?.stock || 0;
@@ -128,6 +161,7 @@ export function AdjustmentFormPage() {
   };
 
   const handleSubmit = () => {
+<<<<<<< HEAD
     if (!productId || counted === '' || !reason) {
       toast.error('Please fill in required fields (Product, Count, Reason)');
       return;
@@ -142,6 +176,28 @@ export function AdjustmentFormPage() {
     };
 
     mutation.mutate(payload);
+=======
+    if (!productId) { toast.error('Select a product'); return; }
+    if (counted === '') { toast.error('Enter counted quantity'); return; }
+    const prod = products.find((p: any) => p._id === productId);
+    const allLocations = warehouses.flatMap((w: any) =>
+      w.locations.map((l: any) => ({ ...l, warehouseName: w.name }))
+    );
+    const loc = allLocations.find((l: any) => l._id === locationId);
+    const na = addAdjustment({
+      productId,
+      productName: prod?.name || '',
+      locationId: locationId || 'default',
+      locationName: loc?.name || 'Main Warehouse',
+      systemQty: prod?.stock || 0,
+      countedQty: Number(counted),
+      reason,
+      notes,
+      status: 'draft',
+    } as any);
+    toast.success(`Adjustment ${na?.adjustmentNo || ''} created!`);
+    navigate('/adjustments');
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
   };
 
   return (
@@ -241,14 +297,22 @@ export function AdjustmentDetailPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const adjustments = useAppStore(state => state.adjustments);
+<<<<<<< HEAD
   const updateAdjustmentStatus = useAppStore(state => state.updateAdjustmentStatus);
+=======
+  const validateAdjustment = useAppStore((state: any) => state.validateAdjustment);
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
   const adjustment = adjustments.find(a => a._id === id);
   const isLoading = false;
 
   const validateMutation = {
     mutate: () => {
       if (id) {
+<<<<<<< HEAD
         updateAdjustmentStatus(id, 'validated');
+=======
+        validateAdjustment(id);
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
         toast.success('Adjustment validated! Stock updated.');
       }
     },
@@ -340,11 +404,19 @@ export function AdjustmentDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">PRODUCT</p>
+<<<<<<< HEAD
                   <p className="text-lg font-semibold text-foreground">{adjustment.product?.name || adjustment.productName}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">LOCATION</p>
                   <p className="text-lg font-semibold text-foreground">{adjustment.location?.name || adjustment.locationName || 'Default'}</p>
+=======
+                  <p className="text-lg font-semibold text-foreground">{(adjustment as any).product?.name || adjustment.productName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">LOCATION</p>
+                  <p className="text-lg font-semibold text-foreground">{(adjustment as any).location?.name || adjustment.locationName || 'Default'}</p>
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">REASON</p>
@@ -358,14 +430,22 @@ export function AdjustmentDetailPage() {
             </GlassCard>
 
             {/* Stock Impact */}
+<<<<<<< HEAD
             <GlassCard className="p-6 border-2" style={{ borderColor: 'rgba(0,212,170,0.3)' }}>
+=======
+            <GlassCard className="p-6 border-2 border-[#00D4AA]/30">
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
               <h3 className="text-sm font-semibold text-foreground mb-6">Stock Impact</h3>
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
                   <div className="text-center flex-1">
                     <p className="text-xs text-muted-foreground mb-2">SYSTEM QTY</p>
                     <p className="text-3xl font-bold text-foreground">{adjustment.systemQty}</p>
+<<<<<<< HEAD
                     <p className="text-xs text-muted-foreground mt-2">{adjustment.product?.unit || 'pcs'}</p>
+=======
+                    <p className="text-xs text-muted-foreground mt-2">{(adjustment as any).product?.unit || 'pcs'}</p>
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                   </div>
                   <div className="text-center hidden sm:block">
                     <p className="text-lg text-muted-foreground">→</p>
@@ -373,7 +453,11 @@ export function AdjustmentDetailPage() {
                   <div className="text-center flex-1">
                     <p className="text-xs text-muted-foreground mb-2">COUNTED QTY</p>
                     <p className="text-3xl font-bold text-primary">{adjustment.countedQty}</p>
+<<<<<<< HEAD
                     <p className="text-xs text-muted-foreground mt-2">{adjustment.product?.unit || 'pcs'}</p>
+=======
+                    <p className="text-xs text-muted-foreground mt-2">{(adjustment as any).product?.unit || 'pcs'}</p>
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                   </div>
                 </div>
 
@@ -394,7 +478,11 @@ export function AdjustmentDetailPage() {
                     </p>
                     <p className="text-xs text-muted-foreground mt-2">
                       Stock will {adjustment.difference > 0 ? 'increase' : adjustment.difference < 0 ? 'decrease' : 'remain the same'} by{' '}
+<<<<<<< HEAD
                       <span className="font-semibold">{Math.abs(adjustment.difference)}</span> {adjustment.product?.unit || 'pcs'}
+=======
+                      <span className="font-semibold">{Math.abs(adjustment.difference)}</span> {(adjustment as any).product?.unit || 'pcs'}
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                     </p>
                   </div>
                 </div>
@@ -411,7 +499,11 @@ export function AdjustmentDetailPage() {
 
           {/* Action Card */}
           <div className="space-y-6">
+<<<<<<< HEAD
             <GlassCard className="p-6" style={{ border: '1px solid rgba(0,212,170,0.2)' }}>
+=======
+            <GlassCard className="p-6 border border-[#00D4AA]/20">
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
               <h3 className="text-sm font-semibold text-foreground mb-4">Actions</h3>
               <div className="mb-4 text-center">
                  <StatusBadge status={adjustment.status} />

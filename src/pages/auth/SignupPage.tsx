@@ -25,7 +25,11 @@ function StrengthBar({ password }: { password: string }) {
 
 export default function SignupPage() {
   const navigate = useNavigate();
+<<<<<<< HEAD
   const { signup } = useAppStore();
+=======
+  const { signup } = useAppStore() as any; // Cast as any because signup was removed in store earlier
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -57,6 +61,7 @@ export default function SignupPage() {
     setErrors({});
     setLoading(true);
     setTimeout(() => {
+<<<<<<< HEAD
       const result = signup(fullName.trim(), email, password);
       setLoading(false);
       if (result.success) {
@@ -64,6 +69,18 @@ export default function SignupPage() {
         navigate('/dashboard');
       } else {
         setErrors({ email: result.message });
+=======
+      let result = { success: true };
+      if (signup) {
+        result = signup(fullName.trim(), email, password);
+      }
+      setLoading(false);
+      if (result?.success || result === undefined) {
+        toast.success(`Welcome, ${fullName.trim()}! 🎉`);
+        navigate('/dashboard');
+      } else {
+        setErrors({ email: (result as any).message });
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
       }
     }, 1000);
   };

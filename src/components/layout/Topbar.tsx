@@ -21,9 +21,7 @@ const pageTitles: Record<string, string> = {
 export default function Topbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { setGlobalSearchOpen, currentUser, sidebarCollapsed,
-    notifications, markAllNotificationsRead,
-    markNotificationRead } = useAppStore();
+  const { setGlobalSearchOpen, currentUser, sidebarCollapsed, notifications, markAllNotificationsRead, markNotificationRead } = useAppStore();
   const [showNotifs, setShowNotifs] = useState(false);
 
   const { data: alerts } = useQuery({
@@ -35,7 +33,9 @@ export default function Topbar() {
   const pathParts = location.pathname.split('/').filter(Boolean);
   const pageTitle = pageTitles['/' + pathParts[0]] || 'Page';
 
-  const unreadCount = notifications?.filter((n: any) => !n.isRead).length || 0;
+  // Notifications are loaded directly from the store
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
     <header

@@ -93,11 +93,55 @@ export default function DeliveryDetailPage() {
       toast.error('Please complete all checks');
       return;
     }
+<<<<<<< HEAD
     statusMutation.mutate('packed');
   };
 
   const handleValidateDelivery = () => {
     validateMutation.mutate();
+=======
+    if (id) {
+      updateDeliveryStatus(id, 'packed');
+      toast.success('Status updated successfully!');
+    }
+  };
+
+
+
+  // Enrich lines with fresh product data from store
+  const enrichedLines = delivery.lines.map((line: any) => {
+    const freshProduct = products.find(p => p._id === line.productId || p._id === line.product);
+    return {
+      ...line,
+      productName: line.productName && line.productName !== 'Unknown Product'
+        ? line.productName
+        : freshProduct?.name || line.productName || '—',
+      unit: line.unit || freshProduct?.unit || 'pcs',
+      unitPrice: line.unitPrice || freshProduct?.sellingPrice
+        || freshProduct?.costPrice || 0,
+    };
+  });
+
+  const totalQty = enrichedLines.reduce((s: number, l: any) => s + (l.requestedQty || l.qty || 0), 0);
+  const totalValue = enrichedLines.reduce(
+    (s: number, l: any) => s + (l.requestedQty || l.qty || 0) * l.unitPrice, 0
+  );
+
+  const handleStatusUpdate = (
+    newStatus: 'ready' | 'picked' | 'packed' | 'done' | 'canceled',
+    extraQtys?: Record<string, number>
+  ) => {
+    updateDeliveryStatus(id!, newStatus, extraQtys);
+    const messages: Record<string, string> = {
+      ready: 'Delivery marked as Ready! 📦',
+      picked: 'Items marked as Picked! ✅',
+      packed: 'Items Packed! 📫',
+      done: 'Delivery validated! Stock updated ✅',
+      canceled: 'Delivery canceled',
+    };
+    toast.success(messages[newStatus] || 'Status updated');
+    if (newStatus === 'canceled') navigate('/deliveries');
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
   };
 
   return (
@@ -108,6 +152,7 @@ export default function DeliveryDetailPage() {
       >
         <ChevronLeft className="w-4 h-4" /> Back to Deliveries
       </button>
+<<<<<<< HEAD
 
       {/* Status Bar */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
@@ -115,12 +160,24 @@ export default function DeliveryDetailPage() {
           <div className="flex items-center justify-between">
             {steps.map((s, i) => (
               <div key={s} className="flex items-center flex-1">
+=======
+      {/* Status Progress Bar */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+        <GlassCard className="p-6">
+          <div className="flex items-center justify-between max-w-2xl text-center">
+            {steps.map((s, i) => (
+              <div key={s} className="flex items-center gap-0 flex-1 relative">
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                 <div className="flex flex-col items-center flex-1">
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all mx-auto"
                     style={{
                       borderColor: i <= currentStep ? '#00D4AA' : 'rgba(255,255,255,0.15)',
+<<<<<<< HEAD
                       backgroundColor: i < currentStep ? '#00D4AA' : 'transparent',
+=======
+                      backgroundColor: i < currentStep ? '#00D4AA' : i === currentStep ? 'transparent' : 'transparent',
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                       color: i <= currentStep ? '#00D4AA' : 'rgba(255,255,255,0.5)',
                     }}
                   >
@@ -133,7 +190,11 @@ export default function DeliveryDetailPage() {
                 {i < steps.length - 1 && (
                   <div
                     className="absolute top-4 left-[60%] w-[80%] h-px"
+<<<<<<< HEAD
                     style={{ background: i < currentStep ? '#00D4AA' : 'rgba(255,255,255,0.1)', position: 'relative', top: '-11px', flex: 1, marginRight: '-50%', marginLeft: '10px' }}
+=======
+                    style={{ background: i < currentStep ? '#00D4AA' : 'rgba(255,255,255,0.1)' }}
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                   />
                 )}
               </div>
@@ -153,7 +214,11 @@ export default function DeliveryDetailPage() {
           >
             <GlassCard className="p-4">
               <p className="text-xs text-muted-foreground font-medium mb-1">CUSTOMER</p>
+<<<<<<< HEAD
               <p className="text-sm font-semibold text-foreground">{delivery.customer?.name || delivery.customerName}</p>
+=======
+              <p className="text-sm font-semibold text-foreground">{delivery.customer?.name || delivery.customerId || delivery.customerName || 'Unknown Customer'}</p>
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
               <p className="text-xs text-muted-foreground mt-2">Delivery #{delivery.deliveryNo}</p>
             </GlassCard>
             <GlassCard className="p-4">
@@ -352,7 +417,11 @@ export default function DeliveryDetailPage() {
           className="space-y-6"
         >
           {/* Action Card */}
+<<<<<<< HEAD
           <GlassCard className="p-6" style={{ border: '1px solid rgba(0,212,170,0.2)' }}>
+=======
+          <GlassCard className="p-6 border-[#00D4AA]/20">
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
             <h3 className="text-sm font-semibold text-foreground mb-4">Actions</h3>
 
             <div className="mb-4 p-3 rounded-lg text-center" style={{ background: 'rgba(0,212,170,0.05)' }}>
@@ -397,7 +466,11 @@ export default function DeliveryDetailPage() {
 
               {delivery.status === 'packed' && (
                 <button
+<<<<<<< HEAD
                   onClick={handleValidateDelivery}
+=======
+                  onClick={() => validateMutation.mutate()}
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                   disabled={validateMutation.isPending}
                   className="btn-primary-gradient w-full text-sm flex items-center justify-center gap-2"
                 >
@@ -409,16 +482,42 @@ export default function DeliveryDetailPage() {
                   {validateMutation.isPending ? 'Validating...' : 'Validate Delivery'}
                 </button>
               )}
+<<<<<<< HEAD
 
               {(delivery.status !== 'done' && delivery.status !== 'canceled') && (
                 <button onClick={() => statusMutation.mutate('canceled')} disabled={statusMutation.isPending} className="w-full px-3 py-2 text-sm rounded-lg" style={{ background: 'rgba(255,68,68,0.15)', color: '#FF4444' }}>
                   Cancel
+=======
+              {delivery.status === 'done' && (
+                <div className="text-center py-2">
+                  <p className="text-xs" style={{ color: '#00D4AA' }}>
+                    ✓ Delivery Completed
+                  </p>
+                </div>
+              )}
+              {delivery.status !== 'done' && delivery.status !== 'canceled' && (
+                <button
+                  onClick={() => {
+                    if (confirm('Cancel this delivery?')) {
+                      handleStatusUpdate('canceled');
+                    }
+                  }}
+                  className="w-full text-sm py-2 rounded-lg transition-colors"
+                  style={{
+                    background: 'rgba(255,68,68,0.1)',
+                    border: '1px solid rgba(255,68,68,0.3)',
+                    color: '#FF4444',
+                  }}
+                >
+                  Cancel Delivery
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
                 </button>
               )}
             </div>
           </GlassCard>
 
           {/* Summary */}
+<<<<<<< HEAD
           <GlassCard className="p-6">
             <h3 className="text-sm font-semibold text-foreground mb-4">Summary</h3>
             <div className="space-y-3">
@@ -433,6 +532,25 @@ export default function DeliveryDetailPage() {
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Est. Value:</span>
                 <span className="text-foreground font-medium">₹{totalValue.toLocaleString('en-IN')}</span>
+=======
+          <GlassCard className="p-5">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Summary</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Lines</span>
+                <span className="text-foreground">{enrichedLines.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total Qty</span>
+                <span className="text-foreground">{totalQty}</span>
+              </div>
+              <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Est. Value</span>
+                <span className="font-semibold" style={{ color: '#00D4AA' }}>
+                  ₹{totalValue.toLocaleString('en-IN')}
+                </span>
+>>>>>>> 369c5c7 (Added new folder to Inventra project Final one)
               </div>
             </div>
           </GlassCard>

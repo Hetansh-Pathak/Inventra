@@ -21,7 +21,7 @@ import { AdjustmentsListPage, AdjustmentFormPage } from "./pages/adjustments/Adj
 import MoveHistoryPage from "./pages/MoveHistoryPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
-import NotFound from "./pages/NotFound";
+import ProfilePage from "./pages/ProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +47,7 @@ const App = () => (
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/products" element={<ProductsListPage />} />
           <Route path="/products/new" element={<ProductFormPage />} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
@@ -66,7 +67,7 @@ const App = () => (
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<div>Not found</div>} />
       </Routes>
     </BrowserRouter>
   </QueryClientProvider>

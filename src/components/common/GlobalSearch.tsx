@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Package, ArrowDownCircle, Truck, ArrowLeftRight } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
-import { products, receipts, deliveries, transfers } from '@/mock/data';
 
 export default function GlobalSearch() {
-  const { globalSearchOpen, setGlobalSearchOpen } = useAppStore();
+  const { products, receipts, deliveries, transfers, globalSearchOpen, setGlobalSearchOpen } = useAppStore();
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
 
@@ -24,10 +23,14 @@ export default function GlobalSearch() {
   }, [handleKeyDown]);
 
   const q = query.toLowerCase();
-  const filteredProducts = products.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
-  const filteredReceipts = receipts.filter(r => r.receiptNo.toLowerCase().includes(q) || r.supplierName.toLowerCase().includes(q));
-  const filteredDeliveries = deliveries.filter(d => d.deliveryNo.toLowerCase().includes(q) || d.customerName.toLowerCase().includes(q));
-  const filteredTransfers = transfers.filter(t => t.transferNo.toLowerCase().includes(q));
+  
+  const getSupplierName = (r: any) => r.supplier?.name || r.supplierName || '';
+  const getCustomerName = (d: any) => d.customer?.name || d.customerName || '';
+
+  const filteredProducts = products.filter((p: any) => p.name?.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q));
+  const filteredReceipts = receipts.filter((r: any) => r.receiptNo?.toLowerCase().includes(q) || getSupplierName(r).toLowerCase().includes(q));
+  const filteredDeliveries = deliveries.filter((d: any) => d.deliveryNo?.toLowerCase().includes(q) || getCustomerName(d).toLowerCase().includes(q));
+  const filteredTransfers = transfers.filter((t: any) => t.transferNo?.toLowerCase().includes(q));
 
   const handleSelect = (path: string) => {
     setGlobalSearchOpen(false);
@@ -67,6 +70,56 @@ export default function GlobalSearch() {
               </button>
             </div>
 
+            {!query && (
+              <div className="p-4 mx-2 mb-2 mt-2">
+                <h3 className="section-label mb-3">Quick Stats</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="glass-card p-4 rounded-xl flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Package className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold text-foreground">{products?.length || 0}</div>
+                      <div className="text-xs text-muted-foreground">Total Products</div>
+                    </div>
+                  </div>
+                  <div className="glass-card p-4 rounded-xl flex items-center gap-3" style={{ border: '1px solid rgba(255,176,32,0.2)' }}>
+                    <div className="p-2 rounded-lg" style={{ background: 'rgba(255,176,32,0.1)' }}>
+                      <Package className="w-5 h-5" style={{ color: '#FFB020' }} />
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold text-foreground">
+                        {products?.filter((p: any) => (p.stock || 0) > 0 && (p.stock || 0) <= (p.reorderLevel || 0)).length || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Low Stock</div>
+                    </div>
+                  </div>
+                  <div className="glass-card p-4 rounded-xl flex items-center gap-3">
+                    <div className="p-2 rounded-lg" style={{ background: 'rgba(0,212,170,0.1)' }}>
+                      <ArrowDownCircle className="w-5 h-5" style={{ color: '#00D4AA' }} />
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold text-foreground">
+                        {receipts?.filter((r: any) => r.status === 'draft').length || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Pending Receipts</div>
+                    </div>
+                  </div>
+                  <div className="glass-card p-4 rounded-xl flex items-center gap-3">
+                    <div className="p-2 rounded-lg" style={{ background: 'rgba(0,188,212,0.1)' }}>
+                      <Truck className="w-5 h-5" style={{ color: '#00BCD4' }} />
+                    </div>
+                    <div>
+                      <div className="text-xl font-bold text-foreground">
+                        {deliveries?.filter((d: any) => d.status === 'draft').length || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Pending Deliveries</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {query && (
               <div className="max-h-[400px] overflow-y-auto p-2">
                 {filteredProducts.length > 0 && (
@@ -91,7 +144,7 @@ export default function GlobalSearch() {
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors text-left">
                         <ArrowDownCircle className="w-4 h-4 text-secondary" />
                         <span className="text-sm font-mono text-primary">{r.receiptNo}</span>
-                        <span className="text-xs text-muted-foreground">{r.supplierName}</span>
+                        <span className="text-xs text-muted-foreground">{getSupplierName(r)}</span>
                       </button>
                     ))}
                   </div>
@@ -104,7 +157,7 @@ export default function GlobalSearch() {
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/5 transition-colors text-left">
                         <Truck className="w-4 h-4 text-purple" />
                         <span className="text-sm font-mono text-primary">{d.deliveryNo}</span>
-                        <span className="text-xs text-muted-foreground">{d.customerName}</span>
+                        <span className="text-xs text-muted-foreground">{getCustomerName(d)}</span>
                       </button>
                     ))}
                   </div>

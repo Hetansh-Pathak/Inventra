@@ -2,7 +2,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import AppLayout from "./components/layout/AppLayout";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 import LoginPage from "./pages/auth/LoginPage";
+import SignupPage from "./pages/auth/SignupPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProductsListPage from "./pages/products/ProductsListPage";
 import ProductDetailPage from "./pages/products/ProductDetailPage";
@@ -24,26 +27,25 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <Toaster
-      position="top-right"
-      toastOptions={{
-        style: {
-          background: 'rgba(20, 27, 45, 0.95)',
-          color: '#F1F5F9',
-          border: '1px solid rgba(255,255,255,0.08)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '12px',
-        },
-        success: { style: { borderLeft: '3px solid #00D4AA' } },
-        error: { style: { borderLeft: '3px solid #FF4444' } },
-        duration: 4000,
-      }}
-    />
+    <Toaster position="top-right" toastOptions={{
+      style: {
+        background: 'rgba(20, 27, 45, 0.95)',
+        color: '#F1F5F9',
+        border: '1px solid rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: '12px',
+      },
+      success: { style: { borderLeft: '3px solid #00D4AA' } },
+      error: { style: { borderLeft: '3px solid #FF4444' } },
+      duration: 4000,
+    }} />
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route element={<AppLayout />}>
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/products" element={<ProductsListPage />} />
           <Route path="/products/new" element={<ProductFormPage />} />
